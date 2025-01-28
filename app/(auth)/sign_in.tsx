@@ -7,16 +7,30 @@ import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
 import { Link } from 'expo-router';
 
+import { loginUser } from '../../api/auth/auth';
+
+
 const SignIn = () => {
   const [form, setForm] = useState({
-    email: '',
+    username: '',
     password: ''
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const submit = () => {
+  const submit = async () => {
     console.log("LOGIN")
+    setIsSubmitting(true);
+    
+    try {
+      const response = await loginUser(form); // Wywołanie API z formularzem logowania
+      console.log('Login successful', response); // Logowanie odpowiedzi (można to zastąpić przekierowaniem lub inną logiką)
+      // Tutaj można np. przekierować użytkownika do strony głównej lub zapisać token w storage
+    } catch (error) {
+      console.error('Login failed', error); // Obsługa błędów, np. wyświetlenie komunikatu
+    } finally {
+      setIsSubmitting(false); // Zakończenie procesu ładowania
+    }
   }
 
   return (
@@ -27,8 +41,8 @@ const SignIn = () => {
           <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">Log in to Aora</Text>
           <FormField 
             title="Email"
-            value={form.email}
-            handleChangeText={(e) => setForm({ ...form, email: e})}
+            value={form.username}
+            handleChangeText={(e) => setForm({ ...form, username: e})}
             otherStyles="mt-7"
             keyboardType="email-address"
           />
@@ -50,7 +64,7 @@ const SignIn = () => {
           <View className="justify-center pt-5 flex-row gap-2">
             <Text className="text-lg text-gray-100 font-pregular">
               Don't have account? {' '}
-              <Link href="/sign-up" className="text-lg font-psemibold text-secondary">Sign up</Link>
+              <Link href="/sign-up" className="text-lg font-psemibold text-secondary">Sign up </Link>
             </Text>
           </View>
         </View>
