@@ -65,8 +65,6 @@ export const registerFormSchema = yup.object({
     .email('E-mail should have valid format')
     .max(255)
     .required('E-mail is required'),
-  firstName: yup.string().min(2).max(128).label('First Name'),
-  lastName: yup.string().min(2).max(128).label('Last Name'),
   password: yup
     .string()
     .required('Password is required')
@@ -81,7 +79,7 @@ export const registerFormSchema = yup.object({
     .required('Repeat your password')
     .oneOf([yup.ref('password')], 'Passwords must match'),
   termsAccepted: yup.boolean().required(),
-  newsletterAccepted: yup.boolean(),
+  // newsletterAccepted: yup.boolean(),
 });
 
 export type RegisterForm = yup.InferType<typeof registerFormSchema>;

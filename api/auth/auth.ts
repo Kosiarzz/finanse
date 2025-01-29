@@ -8,7 +8,7 @@ import type {
 } from './auth.types';
 
 export const loginUser = async (body: LoginForm) => {
-  console.log(body)
+  console.log("Login:"+body)
   const { data } = await axios.post<LoginResponse>(`login`, body);
 
   return data;
@@ -18,7 +18,7 @@ export const registerUser = async (body: RegisterForm) => {
   const { data } = await axios.post<RegisterResponse>(`register`, {
     ...body,
   });
-
+  console.log("Register"+data)
   return data;
 };
 
