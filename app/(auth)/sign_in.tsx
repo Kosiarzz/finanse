@@ -16,6 +16,7 @@ const SignIn = () => {
     password: ''
   })
 
+  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const submit = async () => {
@@ -28,6 +29,10 @@ const SignIn = () => {
       // Tutaj można np. przekierować użytkownika do strony głównej lub zapisać token w storage
     } catch (error) {
       console.error('Login failed', error); // Obsługa błędów, np. wyświetlenie komunikatu
+      if (error.response && error.response.data.errors) {
+        console.log("LOGIN ERROR:"+JSON.stringify(error.response.data.errors, null, 2));
+        setErrors(error.response.data.errors);
+        }
     } finally {
       setIsSubmitting(false); // Zakończenie procesu ładowania
     }
@@ -45,15 +50,18 @@ const SignIn = () => {
             handleChangeText={(e) => setForm({ ...form, username: e})}
             otherStyles="mt-7"
             keyboardType="email-address"
+            error={errors.username}
           />
-
+          <Text className="text-red-500">{errors.username}</Text>
           <FormField 
             title="Password"
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e})}
             otherStyles="mt-7"
+            error={errors.password}
           />
-
+          <Text className="text-red-500">{errors.password}</Text>
+          <Text className="text-red-500">{errors.auth}</Text>
           <CustomButton 
             title="Sign In"
             handlePress={submit}
