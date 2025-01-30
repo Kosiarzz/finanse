@@ -6,37 +6,15 @@ import { images } from '../../constants';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
 import { Link } from 'expo-router';
-
-import { loginUser } from '../../api/auth/auth';
+import useAuthStore from '@/store/authStore';
 
 
 const SignIn = () => {
-  const [form, setForm] = useState({
-    username: '',
-    password: ''
-  })
+  const { form, setForm, submit, errors, isSubmitting, isLoggedIn } = useAuthStore();
 
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const submit = async () => {
-    console.log("LOGIN")
-    setIsSubmitting(true);
-    
-    try {
-      const response = await loginUser(form); // Wywołanie API z formularzem logowania
-      console.log('Login successful', response); // Logowanie odpowiedzi (można to zastąpić przekierowaniem lub inną logiką)
-      // Tutaj można np. przekierować użytkownika do strony głównej lub zapisać token w storage
-    } catch (error) {
-      console.error('Login failed', error); // Obsługa błędów, np. wyświetlenie komunikatu
-      if (error.response && error.response.data.errors) {
-        console.log("LOGIN ERROR:"+JSON.stringify(error.response.data.errors, null, 2));
-        setErrors(error.response.data.errors);
-        }
-    } finally {
-      setIsSubmitting(false); // Zakończenie procesu ładowania
-    }
-  }
+  const handleChangeText = (field, value) => {
+    setForm(field, value);
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -47,7 +25,7 @@ const SignIn = () => {
           <FormField 
             title="Email"
             value={form.username}
-            handleChangeText={(e) => setForm({ ...form, username: e})}
+            handleChangeText={(e) => handleChangeText('username', e)}
             otherStyles="mt-7"
             keyboardType="email-address"
             error={errors.username}
@@ -56,7 +34,7 @@ const SignIn = () => {
           <FormField 
             title="Password"
             value={form.password}
-            handleChangeText={(e) => setForm({ ...form, password: e})}
+            handleChangeText={(e) => handleChangeText('password', e)}
             otherStyles="mt-7"
             error={errors.password}
           />

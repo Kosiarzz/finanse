@@ -6,42 +6,14 @@ import { images } from '../../constants';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
 import { Link } from 'expo-router';
-
-import { registerUser } from '../../api/auth/auth';
+import useRegisterStore from '@/store/registerStore';
 
 const SignUp = () => {
-  const [form, setForm] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    termsAccepted: false
-  })
+  const { form, setForm, submit, errors, isSubmitting } = useRegisterStore();
 
-  const [errors, setErrors] = useState({});
-
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const submit = async () => {
-    console.log("REGISTER")
-    setIsSubmitting(true);
-          
-    try {
-      const response = await registerUser(form); // Wywołanie API z formularzem logowania
-      console.log('Register successful', response); // Logowanie odpowiedzi (można to zastąpić przekierowaniem lub inną logiką)
-      // Tutaj można np. przekierować użytkownika do strony głównej lub zapisać token w storage
-    } catch (error) {
-      console.log(error.response);
-      if (error.response && error.response.data.errors) {
-      console.log("REGISETER ERROR:"+JSON.stringify(error.response.data.errors, null, 2));
-      setErrors(error.response.data.errors);
-      }
-      // console.error('Register failed', error.response.data); // Obsługa błędów, np. wyświetlenie komunikatu
-      // console.log('Detailed error:', JSON.stringify(error, null, 2));
-    } finally {
-      setIsSubmitting(false); // Zakończenie procesu ładowania
-    }
-  }
+  const handleChangeText = (field, value) => {
+    setForm(field, value);
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -52,7 +24,7 @@ const SignUp = () => {
           <FormField 
             title="Username"
             value={form.username}
-            handleChangeText={(e) => setForm({ ...form, username: e})}
+            handleChangeText={(e) => handleChangeText('username', e)}
             otherStyles="mt-10"
             error={errors.username}
           />
@@ -60,7 +32,7 @@ const SignUp = () => {
           <FormField 
             title="Email"
             value={form.email}
-            handleChangeText={(e) => setForm({ ...form, email: e})}
+            handleChangeText={(e) => handleChangeText('email', e)}
             otherStyles="mt-7"
             keyboardType="email-address"
             error={errors.email}
@@ -69,7 +41,7 @@ const SignUp = () => {
           <FormField 
             title="Password"
             value={form.password}
-            handleChangeText={(e) => setForm({ ...form, password: e})}
+            handleChangeText={(e) => handleChangeText('password', e)}
             otherStyles="mt-7"
             error={errors.password}
           />
@@ -77,14 +49,14 @@ const SignUp = () => {
           <FormField 
             title="Confirm password"
             value={form.confirmPassword}
-            handleChangeText={(e) => setForm({ ...form, confirmPassword: e})}
+            handleChangeText={(e) => handleChangeText('confirmPassword', e)}
             otherStyles="mt-7"
             error={errors.confirmPassword}
           />  
           <Text className="text-red-500">{errors.confirmPassword}</Text>
           <Switch
             value={form.termsAccepted}
-            onValueChange={(e) => setForm({ ...form, termsAccepted: e})}
+            onValueChange={(e) => handleChangeText('termsAccepted', e)}
           />
           <Text className="text-white">Akceptuję regulamin</Text>
           <Text className="text-red-500">{errors.termsAccepted}</Text>
