@@ -60,6 +60,12 @@ const SignUp = () => {
           />
           <Text className="text-white">Akceptuję regulamin</Text>
           <Text className="text-red-500">{errors.termsAccepted}</Text>
+          <Switch
+            value={form.newsletterAccepted}
+            onValueChange={(e) => handleChangeText('newsletterAccepted', e)}
+          />
+          <Text className="text-white">Akceptuję newsletter</Text>
+          <Text className="text-red-500">{errors.newsletterAccepted}</Text>
           <CustomButton 
             title="Sign Up"
             handlePress={submit}

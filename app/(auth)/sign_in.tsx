@@ -8,10 +8,9 @@ import CustomButton from '@/components/CustomButton';
 import { Link } from 'expo-router';
 import useAuthStore from '@/store/authStore';
 
-
 const SignIn = () => {
   const { form, setForm, submit, errors, isSubmitting, isLoggedIn } = useAuthStore();
-
+  
   const handleChangeText = (field, value) => {
     setForm(field, value);
   };

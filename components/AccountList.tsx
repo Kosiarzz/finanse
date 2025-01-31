@@ -6,6 +6,8 @@ import Account from '../model/Account';
 import { withObservables } from '@nozbe/watermelondb/react';
 
 function AccountsList({ accounts }: { accounts: Account[] }) {
+
+  console.log(accounts);
   return (
     <FlatList
       data={accounts}

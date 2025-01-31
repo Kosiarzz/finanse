@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { loginUser } from '../api/auth/auth';
 import { router } from 'expo-router';
 import useUserStore from './userStore';
+import * as SecureStore from 'expo-secure-store';
 
 const useAuthStore = create((set) => ({
   form: {
@@ -28,6 +29,10 @@ const useAuthStore = create((set) => ({
         username: response.username,
         tutorialCompleted: Boolean(response.tutorialCompleted)
       });
+      //zapis tokena do secure storage
+      await SecureStore.setItemAsync('password', useAuthStore.getState().form.password);
+      await SecureStore.setItemAsync('accessToken', response.accessToken);
+      //zapis loginu/hasła do secure storage
       set({ isLoggedIn: true });
       set({ errors: {} });
       router.replace("/home");

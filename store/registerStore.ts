@@ -7,7 +7,8 @@ const registerStore = create((set) => ({
     email: '',
     password: '',
     confirmPassword: '',
-    termsAccepted: false
+    termsAccepted: false,
+    newsletterAccepted: false,
   },
   errors: {},
   isSubmitting: false,
@@ -23,6 +24,7 @@ const registerStore = create((set) => ({
       console.log('Register successful', response);
       // Handle successful login like redirect or token storage
       console.log("REGISETER ERROR:"+JSON.stringify(response.data, null, 2));
+      //zapis danych usera (bez hasła) do localdb
       set({ errors: {} });
     } catch (error) {
       console.error('Register failed', error);
