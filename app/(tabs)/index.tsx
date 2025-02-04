@@ -1,56 +1,68 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, Button, TextInput, Image } from 'react-native';
+import AccountsList from '../../components/AccountList';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Link } from 'expo-router';
+import database, { accountsCollection } from '../../db';
+import { useState } from 'react';
 
 export default function HomeScreen() {
+  const [name, setName] = useState('');
+  const [cap, setCap] = useState('');
+  const [tap, setTap] = useState('');
+
+  const createAccount = async () => {
+    console.log("Create account");
+
+    await database.write(async () => {
+      await accountsCollection.create((account) => {
+        account.name = name;
+        account.cap = Number.parseFloat(cap);
+        account.tap = Number.parseFloat(tap);
+      });
+    });
+
+    setName('');
+    setCap('');
+    setTap('');
+  };
+
+  const onRead = async () => {
+    const accounts = await accountsCollection.query().fetch();
+    console.log("onRead");
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
+    <View>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcomedsa!</ThemedText>
+        <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <Link href="/accounts">account</Link>
+      <AccountsList />
+
+      <View>
+        <TextInput
+          value={name}
+          onChangeText={setName}
+          placeholder="Name"
+        />
+        <TextInput
+          value={cap}
+          onChangeText={setCap}
+          placeholder="CAP %"
+        />
+        <TextInput
+          value={tap}
+          onChangeText={setTap}
+          placeholder="TAP %"
+        />
+      </View>
+      <Button title="Add account" onPress={createAccount}/>
+    </View>
   );
 }
 
