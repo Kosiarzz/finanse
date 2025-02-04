@@ -1,18 +1,32 @@
 import { View, Text, ScrollView, Image } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
 import { images } from '../../constants';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
 import { Link } from 'expo-router';
-import useAuthStore from '@/store/authStore';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { loginFormSchema, type LoginForm, } from '@/api/validation/authValidation';
+import { Controller, useForm } from 'react-hook-form';
+
+
+interface IFormInput {
+  username: string;
+  password: string;
+}
 
 const SignIn = () => {
-  const { form, setForm, submit, errors, isSubmitting, isLoggedIn } = useAuthStore();
-  
-  const handleChangeText = (field, value) => {
-    setForm(field, value);
+
+  const { handleSubmit, formState: { errors }, control } = useForm({
+    resolver: yupResolver(loginFormSchema),
+  });
+
+  const onSubmit = (values: LoginForm) => {
+    //wykonanie funkcji API
+    //wykonanie zustand
+    //reszta logiki
+    console.log("LOGIN")
+    console.log(values)
   };
 
   return (
@@ -21,29 +35,41 @@ const SignIn = () => {
         <View className="w-full justify-center min-h-[83vh] px-4 my-6">
           <Image source={images.logo} resizeMode='contain' className="w-[115px] h-[35px]" />
           <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">Log in to Aora</Text>
-          <FormField 
-            title="Email"
-            value={form.username}
-            handleChangeText={(e) => handleChangeText('username', e)}
-            otherStyles="mt-7"
-            keyboardType="email-address"
-            error={errors.username}
+          <Controller
+            control={control}
+            name='username'
+            render={({field, fieldState}) => (
+              <FormField 
+                title="Email"
+                onChangeText={field.onChange}
+                value={field.value}
+                otherStyles="mt-7"
+                keyboardType="email-address"
+                errorMessage={fieldState.error?.message}
+                placeholder=''
+              />
+            )}
           />
-          <Text className="text-red-500">{errors.username}</Text>
-          <FormField 
-            title="Password"
-            value={form.password}
-            handleChangeText={(e) => handleChangeText('password', e)}
-            otherStyles="mt-7"
-            error={errors.password}
+          <Controller
+            control={control}
+            name='password'
+            render={({field, fieldState}) => (
+              <FormField 
+                title="Hasło"
+                onChangeText={field.onChange}
+                value={field.value}
+                otherStyles="mt-7"
+                keyboardType="password"
+                errorMessage={fieldState.error?.message}
+                placeholder=''
+              />
+            )}
           />
-          <Text className="text-red-500">{errors.password}</Text>
-          <Text className="text-red-500">{errors.auth}</Text>
           <CustomButton 
             title="Sign In"
-            handlePress={submit}
+            handlePress={handleSubmit(onSubmit, (test) => console.log(test))}
             containerStyles="mt-7"
-            isLoading={isSubmitting}
+            textStyles=''
           />
 
           <View className="justify-center pt-5 flex-row gap-2">

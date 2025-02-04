@@ -9,7 +9,9 @@ import type {
 
 export const loginUser = async (body: LoginForm) => {
   console.log("Login:"+body)
-  const { data } = await axios.post<LoginResponse>(`login`, body);
+  const { data } = await axios.post<LoginResponse>(`login`, body, {
+    timeout: 5000
+  });
 
   return data;
 };

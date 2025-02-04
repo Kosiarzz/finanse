@@ -79,7 +79,7 @@ export const registerFormSchema = yup.object({
     .required('Repeat your password')
     .oneOf([yup.ref('password')], 'Passwords must match'),
   termsAccepted: yup.boolean().required(),
-  // newsletterAccepted: yup.boolean(),
+  newsletterAccepted: yup.boolean(),
 });
 
 export type RegisterForm = yup.InferType<typeof registerFormSchema>;

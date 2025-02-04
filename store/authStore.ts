@@ -1,50 +1,27 @@
 import { create } from 'zustand';
-import { loginUser } from '../api/auth/auth';
-import { router } from 'expo-router';
-import useUserStore from './userStore';
-import * as SecureStore from 'expo-secure-store';
 
-const useAuthStore = create((set) => ({
-  form: {
-    username: '',
-    password: ''
-  },
+interface LoginFormState {
+  username: string;
+  password: string;
+  errors: {
+    username?: string;
+    password?: string;
+  };
+  setField: (field: string, value: string) => void;
+  setErrors: (errors: LoginFormState['errors']) => void;
+}
+
+const initialValues = {
+ username: '',
+ password: '',
+}
+
+const useAuthStore = create<LoginFormState>((set) => ({
   errors: {},
-  isSubmitting: false,
-  isLoggedIn: false,
-  setForm: (field, value) => set((state) => ({
-    form: { ...state.form, [field]: value }
-  })),
+  values: initialValues,
+  setField: (field, value) => set(state => ({ ...state, [field]: value })),
   setErrors: (errors) => set({ errors }),
-  setIsSubmitting: (isSubmitting) => set({ isSubmitting }),
-  setIsLoggedIn: (isLoggedIn) => set({ isLoggedIn }),
-  submit: async () => {
-    set({ isSubmitting: true });
-    try {
-      const response = await loginUser(useAuthStore.getState().form);
-      console.log('Login successful', response);
-      useUserStore.getState().setUser({
-        accessToken: response.accessToken,
-        id: response.id,
-        username: response.username,
-        tutorialCompleted: Boolean(response.tutorialCompleted)
-      });
-      //zapis tokena do secure storage
-      await SecureStore.setItemAsync('password', useAuthStore.getState().form.password);
-      await SecureStore.setItemAsync('accessToken', response.accessToken);
-      //zapis loginu/hasła do secure storage
-      set({ isLoggedIn: true });
-      set({ errors: {} });
-      router.replace("/home");
-    } catch (error) {
-      console.error('Login failed', error);
-      if (error.response && error.response.data.errors) {
-        set({ errors: error.response.data.errors });
-      }
-    } finally {
-      set({ isSubmitting: false });
-    }
-  }
+  clear: () => set({values: initialValues})
 }));
 
 export default useAuthStore;
