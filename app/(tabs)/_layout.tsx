@@ -2,10 +2,11 @@ import { View, Text, Image } from 'react-native'
 import { Tabs, Redirect } from 'expo-router'
 
 import { icons } from '../../constants'
+import { StatusBar } from 'expo-status-bar'
 
 const TabIcon = ({ icon, color, name, focused }) => {
     return (
-        <View className="items-center justify-center gap-2">
+        <View className="flex items-center justify-center w-[100px] gap-2">
             <Image 
                 source={icon}
                 resizeMode="contain"
@@ -34,8 +35,9 @@ const TabsLayout = () => {
             tabBarStyle: {
               backgroundColor: "#161622",
               borderTopWidth: 1,
-              borderTopColor: "#232533",
-              height: 84,
+              borderTopColor: "#161622",
+              height: 55,
+              paddingTop: 10
             },
           }}
         >
@@ -49,22 +51,22 @@ const TabsLayout = () => {
                             icon={icons.home}
                             color={color}
                             name="Home"
-                            focused={false}
+                            focused={focused}
                         />
                     ),
                 }}
             />
             <Tabs.Screen 
-                name="bookmark"
+                name="transactions"
                 options={{
-                    title: 'Bookmark',
+                    title: 'Transakcje',
                     headerShown: false,
                     tabBarIcon: ({color, focused}) => (
                         <TabIcon 
                             icon={icons.bookmark}
                             color={color}
-                            name="Bookmark"
-                            focused={false}
+                            name="Transactions"
+                            focused={focused}
                         />
                     ),
                 }}
@@ -79,22 +81,7 @@ const TabsLayout = () => {
                             icon={icons.plus}
                             color={color}
                             name="Create"
-                            focused={false}
-                        />
-                    ),
-                }}
-            />
-            <Tabs.Screen 
-                name="profile"
-                options={{
-                    title: 'Profile',
-                    headerShown: false,
-                    tabBarIcon: ({color, focused}) => (
-                        <TabIcon 
-                            icon={icons.profile}
-                            color={color}
-                            name="Profile"
-                            focused={false}
+                            focused={focused}
                         />
                     ),
                 }}
@@ -109,12 +96,14 @@ const TabsLayout = () => {
                             icon={icons.logout}
                             color={color}
                             name="Index"
-                            focused={false}
+                            focused={focused}
                         />
                     ),
                 }}
             />
         </Tabs>
+
+        <StatusBar backgroundColor='#161622' style='light' /> 
     </>
   )
 }
