@@ -78,7 +78,7 @@ export const registerFormSchema = yup.object({
     .string()
     .required('Repeat your password')
     .oneOf([yup.ref('password')], 'Passwords must match'),
-  termsAccepted: yup.boolean().required(),
+  termsAccepted: yup.boolean().required().oneOf([true], 'AKCEPT SZMATO'),
   newsletterAccepted: yup.boolean(),
 });
 

@@ -32,7 +32,7 @@ const SignUp = () => {
   }, []);
 
   const { handleSubmit, formState: { errors }, control } = useForm({
-    resolver: yupResolver(registerFormSchema),
+    resolver: yupResolver(registerFormSchema)
   });
 
   const onSubmit = async (registerForm: RegisterForm) => {

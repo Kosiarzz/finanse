@@ -99,6 +99,21 @@ const TabsLayout = () => {
                     ),
                 }}
             />
+            <Tabs.Screen 
+                name="index"
+                options={{
+                    title: 'Index',
+                    headerShown: false,
+                    tabBarIcon: ({color, focused}) => (
+                        <TabIcon 
+                            icon={icons.logout}
+                            color={color}
+                            name="Index"
+                            focused={false}
+                        />
+                    ),
+                }}
+            />
         </Tabs>
     </>
   )
