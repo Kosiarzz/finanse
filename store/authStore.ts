@@ -1,27 +1,30 @@
 import { create } from 'zustand';
 
 interface LoginFormState {
+  id: BigInt;
   username: string;
   password: string;
-  errors: {
-    username?: string;
-    password?: string;
-  };
+  email: string;
+  accessToken: string;
   setField: (field: string, value: string) => void;
-  setErrors: (errors: LoginFormState['errors']) => void;
 }
 
 const initialValues = {
- username: '',
- password: '',
+  id: '',
+  username: '',
+  password: '',
+  email: '',
+  accessToken: '',
 }
 
-const useAuthStore = create<LoginFormState>((set) => ({
-  errors: {},
+const useAuthStore = create((set) => ({
+  isLoggedIn: false,
   values: initialValues,
-  setField: (field, value) => set(state => ({ ...state, [field]: value })),
-  setErrors: (errors) => set({ errors }),
-  clear: () => set({values: initialValues})
+  setValues: (userData: any) => set({
+    values: { ...initialValues, ...userData }
+  }),
+  clear: () => set({values: initialValues}),
+  setIsLoggedIn: (isLoggedIn: boolean) => set({ isLoggedIn }),
 }));
 
 export default useAuthStore;

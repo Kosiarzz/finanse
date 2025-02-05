@@ -1,6 +1,6 @@
 import { Text, View, ScrollView, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Redirect, router } from 'expo-router';
+import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { images } from '../constants';
@@ -12,11 +12,8 @@ import useAuthStore from '@/store/authStore';
 export default function App() {
   const { isLoggedIn } = useAuthStore();
   console.log("INDEX")
-  if (isLoggedIn) return <Redirect href="/home"/>
-  // if(isLoggedIn) return <Redirect href="/home" />
-  
-  //   console.log(isLoading)
-  //   console.log(isLoggedIn)
+  if (isLoggedIn) return router.replace("/home");
+
   return (
     //Safeareview dostoswywuje widok do rozmiarów telefonu 
     <SafeAreaView className="bg-primary h-full">
@@ -52,7 +49,7 @@ export default function App() {
 
           <CustomButton
             title="Cotinue with Email"
-            handlePress={() => router.push('/sign_in')}
+            handlePress={() => router.push('/sign-in')}
             containerStyles="w-full mt-7"
           />
         </View>

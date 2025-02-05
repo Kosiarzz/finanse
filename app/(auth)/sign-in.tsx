@@ -1,14 +1,16 @@
 import { View, Text, ScrollView, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from '../../constants';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
-import { Link } from 'expo-router';
+import { Link, Redirect, router } from 'expo-router';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { loginFormSchema, type LoginForm, } from '@/api/validation/authValidation';
 import { Controller, useForm } from 'react-hook-form';
-
+import { loginUser } from '@/api/auth/auth';
+import useAuthStore from '@/store/authStore';
+import * as SecureStore from 'expo-secure-store';
 
 interface IFormInput {
   username: string;
@@ -16,17 +18,36 @@ interface IFormInput {
 }
 
 const SignIn = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAuthError, setAuthError] = useState('');
+  const { setValues, isLoggedIn, setIsLoggedIn } = useAuthStore();
+  
+  useEffect(() => {
+    if (isLoggedIn) return router.replace("/home");
+  }, []);
 
   const { handleSubmit, formState: { errors }, control } = useForm({
     resolver: yupResolver(loginFormSchema),
   });
 
-  const onSubmit = (values: LoginForm) => {
-    //wykonanie funkcji API
-    //wykonanie zustand
-    //reszta logiki
-    console.log("LOGIN")
-    console.log(values)
+  const onSubmit = async (loginForm: LoginForm) => {
+    try {
+      setIsLoading(true)
+
+      const response = await loginUser(loginForm);
+      setValues(response)
+
+      await SecureStore.setItemAsync(loginForm.username, loginForm.password);
+      //update danych usera db lokalnie 
+
+      setIsLoggedIn(true)
+      router.replace("/home");
+    } catch (error) {
+      console.error('Login failed', error);
+      setAuthError("User lub hasło nieprawidłowe")
+    } finally {
+      setIsLoading(false)
+    }
   };
 
   return (
@@ -55,7 +76,7 @@ const SignIn = () => {
             name='password'
             render={({field, fieldState}) => (
               <FormField 
-                title="Hasło"
+                title="Password"
                 onChangeText={field.onChange}
                 value={field.value}
                 otherStyles="mt-7"
@@ -65,11 +86,13 @@ const SignIn = () => {
               />
             )}
           />
+          <Text className='text-red-500'>{isAuthError}</Text>
           <CustomButton 
             title="Sign In"
             handlePress={handleSubmit(onSubmit, (test) => console.log(test))}
             containerStyles="mt-7"
             textStyles=''
+            isLoading={isLoading} //zustand? zwykły hook?
           />
 
           <View className="justify-center pt-5 flex-row gap-2">
