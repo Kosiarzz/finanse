@@ -2,10 +2,8 @@ import { View, Text, Button, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Link, router } from 'expo-router'
-import useUserStore from '@/store/userStore'
 import * as SecureStore from 'expo-secure-store';
-import CustomButton from '@/components/CustomButton'
-import useAuthStore from '@/store/authStore'
+import useAuthStore from '@/store/authStore';
 
 const Home = () => {
 

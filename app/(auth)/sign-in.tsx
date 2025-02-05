@@ -22,9 +22,7 @@ const SignIn = () => {
   const [isAuthError, setAuthError] = useState('');
   const { setValues, isLoggedIn, setIsLoggedIn } = useAuthStore();
   
-  useEffect(() => {
-    if (isLoggedIn) return router.replace("/home");
-  }, []);
+  if (isLoggedIn) return <Redirect href="/home" />;
 
   const { handleSubmit, formState: { errors }, control } = useForm({
     resolver: yupResolver(loginFormSchema),

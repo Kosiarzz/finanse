@@ -1,6 +1,6 @@
 import { Text, View, ScrollView, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { images } from '../constants';
@@ -12,7 +12,7 @@ import useAuthStore from '@/store/authStore';
 export default function App() {
   const { isLoggedIn } = useAuthStore();
   console.log("INDEX")
-  if (isLoggedIn) return router.replace("/home");
+  if (isLoggedIn) return <Redirect href="/home" />
 
   return (
     //Safeareview dostoswywuje widok do rozmiarów telefonu 
