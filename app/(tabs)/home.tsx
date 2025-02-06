@@ -23,7 +23,7 @@ const Home = () => {
       router.replace("/sign-in");
     };
   return (
-    <SafeAreaView>
+    <SafeAreaView className="bg-primary h-full">
       <Text>Home</Text>
       <Link href="/sign-in" className="text-lg font-psemibold text-secondary">Sign in</Link>
       <TouchableOpacity
