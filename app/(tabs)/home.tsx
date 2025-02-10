@@ -1,27 +1,50 @@
 import { View, Text, Button, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Link, router } from 'expo-router'
 import * as SecureStore from 'expo-secure-store';
 import useAuthStore from '@/store/authStore';
+import { getAccounts } from '@/api/account/account';
+import useAccountStore from '@/store/useAccountStore';
 
 const Home = () => {
 
-  const {values, setIsLoggedIn} = useAuthStore();
+  const { values, setIsLoggedIn } = useAuthStore();
+  const { accounts, setAccounts } = useAccountStore();
+
   console.log("HOME")
 
-    async function testSecureStore() {
-      console.log(values)
-      const passowrd = await SecureStore.getItemAsync('testt');
-      console.log(passowrd); 
-    }
-    
-    testSecureStore();
+  async function testSecureStore() {
+    console.log(values)
+    const passowrd = await SecureStore.getItemAsync('testt');
+    console.log(passowrd); 
+  }
+  
+  testSecureStore();
 
-    const submit = async () => {
-      setIsLoggedIn(false)
-      router.replace("/sign-in");
-    };
+  const fetchData = async () => {
+
+    try {
+      const fetchedData = await getAccounts(values.accessToken)
+      console.log(fetchedData)
+      setAccounts(fetchedData) 
+      console.log(accounts)
+    } catch (error) {
+      // console.log('Error:', JSON.stringify(error, null, 2));
+      console.log(error.message)
+    }
+  }
+
+  useEffect(() => {
+    
+    fetchData();
+  }, [])
+
+  const submit = async () => {
+    setIsLoggedIn(false)
+    router.replace("/sign-in");
+  };
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <Text>Home</Text>

@@ -4,22 +4,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyState from '@/components/EmptyState';
 import { getTransactions } from '@/api/transaction/transaction';
 import TransactionCard from '@/components/TransactionCard';
+import useTransactionStore from '@/store/useTransactionStore';
+import useAuthStore from '@/store/authStore';
 
 const Transactions = () => {
   const [refreshing, setRefreshing] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [transactions, setTransactions] = useState([]);
+  const { setTransactions, transactions } = useTransactionStore();
+  const { values } = useAuthStore();
 
   const fetchData = async () => {
-    setIsLoading(true)
+
     try {
-      const fetchedData = await getTransactions(3)
-      setTransactions(fetchedData.transactions) 
+      const fetchedData = await getTransactions(1, values.accessToken)
+      console.log(fetchedData)
+      setTransactions(fetchedData) 
+      console.log(transactions)
     } catch (error) {
       // console.log('Error:', JSON.stringify(error, null, 2));
       console.log(error.message)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -55,14 +57,9 @@ const Transactions = () => {
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-6">
             <View className="justify-between items-start flex-row mb-6">
-              <View>
-                <Text className='font-pmedium text-sm text-gray-100'>
-                  Welcome Back
-                </Text>
-                <Text className='tesxt-2xl font-psemibold text-white'>
-                  Koksiarz
-                </Text>
-              </View>
+              <Text className='tesxt-2xl font-psemibold text-white'>
+                Transakcje
+              </Text>
             </View>
           </View>
         )}
