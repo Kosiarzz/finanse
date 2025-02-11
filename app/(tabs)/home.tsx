@@ -1,16 +1,18 @@
-import { View, Text, Button, TouchableOpacity } from 'react-native'
-import React, { useEffect } from 'react'
+import { View, Text, Button, TouchableOpacity, FlatList, RefreshControl } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Link, router } from 'expo-router'
 import * as SecureStore from 'expo-secure-store';
 import useAuthStore from '@/store/authStore';
 import { getAccounts } from '@/api/account/account';
 import useAccountStore from '@/store/useAccountStore';
+import EmptyState from '@/components/EmptyState';
 
 const Home = () => {
 
   const { values, setIsLoggedIn } = useAuthStore();
   const { accounts, setAccounts } = useAccountStore();
+  const [refreshing, setRefreshing] = useState(false)
 
   console.log("HOME")
 
@@ -40,22 +42,47 @@ const Home = () => {
     fetchData();
   }, [])
 
-  const submit = async () => {
-    setIsLoggedIn(false)
-    router.replace("/sign-in");
-  };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    fetchData();
+    setRefreshing(false);
+  }
 
   return (
     <SafeAreaView className="bg-primary h-full">
-      <Text>Home</Text>
-      <Link href="/sign-in" className="text-lg font-psemibold text-secondary">Sign in</Link>
-      <TouchableOpacity
-          onPress={submit}
-          activeOpacity={0.7}
-          className={`bg-secondary rounded-xl min-h-[62px] justify-center items-center`}
-      > 
-        <Text className={`text-primary font-psemibold text-lg`}>Wyloguj</Text>
-      </TouchableOpacity>
+      <Text className='text-white'>Home</Text>
+      
+      <FlatList
+        data={accounts} //{ id: 1}, { id: 2}, { id: 3}
+        keyExtractor={(item) => item.$id}
+        renderItem={({ item }) => (
+          <>
+            <Text className='text-white'>{item.id}</Text>
+            <Text className='text-white'>{item.name}</Text>
+            <Text className='text-white'>{item.saldo} zł</Text>
+          </>
+        )}
+        ListHeaderComponent={() => (
+          <View className="my-6 px-4 space-y-6">
+            <View className="justify-between items-start flex-row mb-6">
+              <Text className='tesxt-2xl font-psemibold text-white'>
+                Transakcje
+              </Text>
+            </View>
+          </View>
+        )}
+        ListEmptyComponent={() => (
+          <EmptyState
+            title="Brak kont"
+            subtitle="Dodaj coś"
+          />
+        )}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      />
+      <Text className='text-white'>Ostatnie transakcje</Text>
+      <Text className='text-white'>Wykres konta</Text>
+      <Text className='text-white'>Zbilżające się płatności</Text>
+      <Text className='text-white'>Przypomnienia</Text>
     </SafeAreaView>
   )
 }

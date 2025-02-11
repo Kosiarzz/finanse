@@ -15,6 +15,7 @@ import * as SecureStore from 'expo-secure-store';
 import { TransactionForm, transactionFormSchema } from '@/api/validation/transactionValidation';
 import { postTransaction } from '@/api/transaction/transaction';
 import useTransactionStore from '@/store/useTransactionStore';
+import useAccountStore from '@/store/useAccountStore';
 
 interface IFormInput {
   name: string;
@@ -30,11 +31,13 @@ const Create = () => {
   const addTransaction = useTransactionStore(store => store.addTransaction);
   const [isExpenditure, setIsExpenditure] = useState(true);
   const values = useAuthStore(store => store.values);
+  const accounts = useAccountStore(store => store.accounts) || [];
 
-  const { handleSubmit, formState: { errors }, control } = useForm({
+  const { handleSubmit, formState: { errors }, control, setValue, getValues, watch } = useForm({
     resolver: yupResolver(transactionFormSchema),
     defaultValues: {
       is_expenditure: false,
+      account_id: accounts[0]?.id
     }
   });
 
@@ -50,13 +53,31 @@ const Create = () => {
 
       router.push("/transactions");
     } catch (error) {
-      console.error('Transaction failed', error);
+      console.error('Transaction failed', error.response);
       console.log(error.response.data)
       setAuthError("Ups, coś nie tak")
     } finally {
       setIsLoading(false)
     }
   };
+
+  // const toggleAccountSelection = (accountId) => {
+  //   const selectedAccounts = getValues('selectedAccounts');
+  //   const newSelection = { ...selectedAccounts, [accountId]: !selectedAccounts[accountId] };
+  //   // Ensure at least one account is always selected
+  //   if (Object.values(newSelection).some(val => val)) {
+  //     setValue('selectedAccounts', newSelection);
+  //   }
+  // };
+
+   // Uaktualnienie domyślnego konta gdy konta zostaną załadowane
+   const selectedAccountId = watch('account_id');
+
+   useEffect(() => {
+     if (accounts.length > 0 && !selectedAccountId) {
+       setValue('account_id', accounts[0].id);
+     }
+   }, [accounts, setValue, selectedAccountId]);
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -91,7 +112,7 @@ const Create = () => {
               />
             )}
           />
-          <Controller
+          {/* <Controller
             control={control}
             name='account_id'
             render={({field, fieldState}) => (
@@ -104,7 +125,7 @@ const Create = () => {
                 placeholder=''
               />
             )}
-          />
+          /> */}
           {/* <Controller
             control={control}
             name='is_expenditure'
@@ -137,7 +158,18 @@ const Create = () => {
                   </>
                 )}
             />
-            </View>
+          </View>
+          <View className="flex-row flex-wrap mb-4">
+            {accounts.map((account) => (
+              <TouchableOpacity
+                key={account.id}
+                className={`px-6 py-3 rounded-md m-1 ${selectedAccountId === account.id ? 'bg-secondary' : 'bg-gray-300'}`}
+                onPress={() => setValue('account_id', account.id)}
+              >
+                <Text className={`text-lg ${selectedAccountId === account.id ? 'text-white' : 'text-gray-800'}`}>{account.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
           <Text className='text-red-500'>{isAuthError}</Text>
           <CustomButton
             title="Dodaj transakcje"

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Button, TextInput, Image } from 'react-native';
+import { View, Text, StyleSheet, Button, TextInput, Image, TouchableOpacity } from 'react-native';
 import AccountsList from '../../components/AccountList';
 
 import { HelloWave } from '@/components/HelloWave';
@@ -8,11 +8,13 @@ import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
 import database, { accountsCollection } from '../../db';
 import { useState } from 'react';
+import useAuthStore from '@/store/authStore';
 
 export default function HomeScreen() {
   const [name, setName] = useState('');
   const [cap, setCap] = useState('');
   const [tap, setTap] = useState('');
+  const { values, setIsLoggedIn } = useAuthStore();
 
   const createAccount = async () => {
     console.log("Create account");
@@ -34,6 +36,11 @@ export default function HomeScreen() {
     const accounts = await accountsCollection.query().fetch();
     console.log("onRead");
   }
+
+  const submit = async () => {
+    setIsLoggedIn(false)
+    router.replace("/sign-in");
+  };
 
   return (
     <View>
@@ -62,6 +69,14 @@ export default function HomeScreen() {
         />
       </View>
       <Button title="Add account" onPress={createAccount}/>
+      <Link href="/sign-in" className="text-lg font-psemibold text-secondary">Sign in</Link>
+            <TouchableOpacity
+                onPress={submit}
+                activeOpacity={0.7}
+                className={`bg-secondary rounded-xl min-h-[62px] justify-center items-center`}
+            > 
+              <Text className={`text-primary font-psemibold text-lg`}>Wyloguj</Text>
+            </TouchableOpacity>
     </View>
   );
 }
