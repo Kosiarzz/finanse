@@ -2,6 +2,16 @@ import axios from '../axios';
 import type { getTransactionsResponse, postTransactionResponse } from './transaction.types';
 import type { TransactionForm } from '../validation/transactionValidation';
 
+export const searchTransactions = async (query: any, token: string) => {
+
+  const { data } = await axios.get<getTransactionsResponse>(`transaction/search/${query}`, {
+    timeout: 5000,
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  return data;
+};
+
 export const getTransactions = async (id: number, token: string) => {
 
   const { data } = await axios.get<getTransactionsResponse>(`transaction/account/${id}`, {

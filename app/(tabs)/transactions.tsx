@@ -1,4 +1,4 @@
-import { View, Text, FlatList, RefreshControl } from 'react-native'
+import { View, Text, FlatList, RefreshControl, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyState from '@/components/EmptyState';
@@ -6,15 +6,19 @@ import { getTransactions } from '@/api/transaction/transaction';
 import TransactionCard from '@/components/TransactionCard';
 import useTransactionStore from '@/store/useTransactionStore';
 import useAuthStore from '@/store/authStore';
+import SearchInput from "@/components/SearchInput";
 
 const Transactions = () => {
   const [refreshing, setRefreshing] = useState(false)
+  const [loading, setLoading] = useState(false)
   const { setTransactions, transactions } = useTransactionStore();
   const { values } = useAuthStore();
 
   const fetchData = async () => {
 
     try {
+      setLoading(true)
+
       const fetchedData = await getTransactions(1, values.accessToken)
       console.log(fetchedData)
       setTransactions(fetchedData) 
@@ -22,6 +26,8 @@ const Transactions = () => {
     } catch (error) {
       // console.log('Error:', JSON.stringify(error, null, 2));
       console.log(error.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -39,6 +45,13 @@ const Transactions = () => {
   // console.log(transactions)
   return (
     <SafeAreaView className="bg-primary h-full">
+      <SearchInput />
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#fff" />
+          <Text className="text-white mt-4">Ładowanie transakcji...</Text>
+        </View>
+      ) : (
       <FlatList
         data={transactions} //{ id: 1}, { id: 2}, { id: 3}
         keyExtractor={(item) => item.$id}
@@ -71,6 +84,7 @@ const Transactions = () => {
         )}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
+      )}
     </SafeAreaView>
   )
 }
