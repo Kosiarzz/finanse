@@ -50,6 +50,7 @@ const Search = () => {
   return (
     <SafeAreaView className="bg-primary h-full">
       <SearchInput initialQuery={query}/>
+      <Text className='text-white'>{query}</Text>
       {loading ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#fff" />
