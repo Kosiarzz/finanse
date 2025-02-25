@@ -4,6 +4,7 @@ import { AntDesign } from '@expo/vector-icons'
 import useTransactionStore from '@/store/useTransactionStore';
 import { deleteTransaction } from '@/api/transaction/transaction';
 import useAuthStore from '@/store/authStore';
+import { Link, router } from 'expo-router';
 
 const TransactionCard = ({id, name, amount, is_expenditure, account_id, user_id, created_at, updated_at }) => {
 
@@ -11,6 +12,13 @@ const TransactionCard = ({id, name, amount, is_expenditure, account_id, user_id,
   const [isAuthError, setAuthError] = useState('');
   const { removeTransaction } = useTransactionStore();
   const { values } = useAuthStore();
+
+  const formatAmount = (amount) => {
+    return Number(amount)
+      .toFixed(2) // Dwa miejsca po przecinku
+      .replace(".", ",") // Zamiana kropki na przecinek
+      .replace(/\B(?=(\d{3})+(?!\d))/g, " "); // Dodanie spacji co 3 cyfry
+  };
 
   const onDelete = async () => {
     try {
@@ -22,13 +30,41 @@ const TransactionCard = ({id, name, amount, is_expenditure, account_id, user_id,
       //update danych usera db lokalnie 
       removeTransaction(id)
     } catch (error) {
-      console.error('Transaction failed', error);
+      console.error('Transaction delete failed', error);
       console.log(error.response.data)
       setAuthError("Ups, coś nie tak")
     } finally {
       setIsLoading(false)
     }
   };
+
+  const onEdit = async () => {
+    try {
+      setIsLoading(true)
+      console.log("EDIT")
+      const dataToSend = {
+        id,
+        name,
+        amount,
+        is_expenditure,
+        account_id,
+        user_id,
+        created_at,
+        updated_at,
+      };
+  
+      router.push({
+        pathname: '/transaction/edit',
+        params: dataToSend,
+      });
+
+    } catch (error) {
+      console.error('Transaction edit failed', error);
+      setAuthError("Ups, coś nie tak")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <View className="flex flex-col items-center px-4 mb-5" key={id}>
@@ -49,17 +85,19 @@ const TransactionCard = ({id, name, amount, is_expenditure, account_id, user_id,
               numberOfLines={1}
             >
               {name}
+              
             </Text>
             <Text
               className={`font-pregular text-3xl font- ${is_expenditure ? 'text-red-500' : 'text-gray-100'}`}
               numberOfLines={1}
             >
-              {is_expenditure ? '-' : ''} { amount } zł
+              {is_expenditure ? '-' : ''} { formatAmount(amount) } zł
             </Text>
           </View>
 
-          <View>
-            <AntDesign name="delete" size={18} color="gray" onPress={onDelete} disabled={isLoading}/>
+          <View className='flex-row'>
+            <AntDesign name="edit" size={18} color="white" onPress={onEdit} disabled={isLoading} className='mr-5'/>
+            <AntDesign name="delete" size={18} color="white" onPress={onDelete} disabled={isLoading}/>
           </View>
         </View>
       </View>

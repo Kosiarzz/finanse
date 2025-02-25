@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 const passwordRule = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])/;
-const nameRule = /^[a-zA-Z0-9_.-]*$/;
+const nameRule = /^[a-zA-Z0-9_.-\s]*$/;
 
 export const transactionFormSchema = yup.object({
   name: yup
