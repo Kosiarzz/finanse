@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image, Switch, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, Image, Switch, TouchableOpacity, Button } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from '../../constants';
@@ -16,16 +16,17 @@ import { TransactionForm, transactionFormSchema } from '@/api/validation/transac
 import { postTransaction } from '@/api/transaction/transaction';
 import useTransactionStore from '@/store/useTransactionStore';
 import useAccountStore from '@/store/useAccountStore';
+import DateTimePickerExample from '@/components/DateTimePickerExample';
 
 interface IFormInput {
   name: string;
   amount: number;
   is_expenditure: boolean;
   account_id: number;
+  date: Date;
 }
 
 const Create = () => {
-
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthError, setAuthError] = useState('');
   const addTransaction = useTransactionStore(store => store.addTransaction);
@@ -45,13 +46,13 @@ const Create = () => {
     try {
       setIsLoading(true)
       
-      console.log(values.accessToken)
-      const response = await postTransaction(transactionForm, values.accessToken);
-      console.log(response)
-      addTransaction(response)
-      //update danych usera db lokalnie 
+      console.log(transactionForm)
+      // const response = await postTransaction(transactionForm, values.accessToken);
+      // console.log(response)
+      // addTransaction(response)
+      // //update danych usera db lokalnie 
 
-      router.push("/transactions");
+      // router.push("/transactions");
     } catch (error) {
       console.error('Transaction failed', error.response);
       console.log(error.response.data)
@@ -109,6 +110,17 @@ const Create = () => {
                 otherStyles="mt-7"
                 errorMessage={fieldState.error?.message}
                 placeholder=''
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="date"
+            render={({ field, fieldState }) => (
+              <DateTimePickerExample
+                onChangeText={field.onChange} // Przekazanie poprawnej funkcji onChange
+                errorMessage={fieldState.error?.message} // Obsługa błędów walidacji
+                value={field.value} // Przekazanie aktualnej wartości pola
               />
             )}
           />

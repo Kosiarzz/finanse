@@ -41,7 +41,7 @@ export default function RootLayout() {
         },
         headerTintColor: '#fff', 
       }}/>
-      <Stack.Screen name="transaction" options={{ 
+      <Stack.Screen name="transaction/edit" options={{ 
         headerShown: true,
         title: '',
         headerStyle: {

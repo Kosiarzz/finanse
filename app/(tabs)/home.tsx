@@ -16,21 +16,21 @@ const Home = () => {
 
   console.log("HOME")
 
-  async function testSecureStore() {
-    console.log(values)
-    const passowrd = await SecureStore.getItemAsync('testt');
-    console.log(passowrd); 
-  }
+  // async function testSecureStore() {
+  //   console.log(values)
+  //   const passowrd = await SecureStore.getItemAsync('testt');
+  //   console.log(passowrd); 
+  // }
   
-  testSecureStore();
+  // testSecureStore();
 
   const fetchData = async () => {
 
     try {
       const fetchedData = await getAccounts(values.accessToken)
-      console.log(fetchedData)
+      
       setAccounts(fetchedData) 
-      console.log(accounts)
+    
     } catch (error) {
       // console.log('Error:', JSON.stringify(error, null, 2));
       console.log(error.message)

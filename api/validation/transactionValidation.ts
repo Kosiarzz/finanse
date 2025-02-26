@@ -24,7 +24,9 @@ export const transactionFormSchema = yup.object({
   account_id: yup
     .number()
     .min(1)
-    .required('Account is required')
+    .required('Account is required'),
+  date: yup
+    .string()
 });
 
 export type TransactionForm = yup.InferType<typeof transactionFormSchema>;
