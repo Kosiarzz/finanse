@@ -7,7 +7,7 @@ import CustomButton from '@/components/CustomButton';
 import { Link, router } from 'expo-router';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { registerFormSchema, type RegisterForm, } from '@/api/validation/authValidation';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useFieldArray } from 'react-hook-form';
 import SwitchField from '@/components/SwitchField';
 import useAuthStore from '@/store/authStore';
 import { registerUser } from '@/api/auth/auth';
@@ -27,6 +27,7 @@ interface IFormInput {
 }
 
 const Create = () => {
+  const [showPurchases, setShowPurchases] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthError, setAuthError] = useState('');
   const addTransaction = useTransactionStore(store => store.addTransaction);
@@ -38,8 +39,16 @@ const Create = () => {
     resolver: yupResolver(transactionFormSchema),
     defaultValues: {
       is_expenditure: false,
-      account_id: accounts[0]?.id
+      account_id: accounts[0]?.id,
+      purchases: [], // Dla produktów w zakupach
+      billDetails: {}, // Dla szczegółów zakupów
     }
+  });
+
+  // Dynamiczne pola dla zakupów (produkty)
+  const { fields: productFields, append: appendProduct, remove: removeProduct } = useFieldArray({
+    control,
+    name: 'purchases',
   });
 
   const onSubmit = async (transactionForm: TransactionForm) => {
@@ -182,6 +191,71 @@ const Create = () => {
               </TouchableOpacity>
             ))}
           </View>
+          {/* Przycisk do pokazania sekcji zakupów */}
+          <TouchableOpacity
+            className="bg-blue-500 rounded-md p-3 mb-4"
+            onPress={() => setShowPurchases(!showPurchases)}
+          >
+            <Text className="text-white text-center">
+              {showPurchases ? 'Ukryj Zakupy' : 'Pokaż Zakupy'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Sekcja szczegółów zakupów */}
+          {showPurchases && (
+            <>
+              {['name_bill', 'shop', 'city', 'date_bill', 'amount_bill'].map((inputName) => (
+                <Controller
+                  key={inputName}
+                  control={control}
+                  name={`billDetails.${inputName}`}
+                  render={({ field, fieldState }) => (
+                    <FormField
+                      title={inputName.replace('_', ' ')}
+                      onChangeText={field.onChange}
+                      value={field.value}
+                      errorMessage={fieldState.error?.message}
+                    />
+                  )}
+                />
+              ))}
+
+              {/* Produkty w zakupach */}
+              {productFields.map((field, index) => (
+                <View key={field.id} className="border-b border-gray-600 mb-4 pb-4">
+                  <Text className="text-white font-semibold mb-2">Produkt #{index + 1}</Text>
+                  {['name', 'price', 'quantity', 'discount'].map((inputName) => (
+                    <Controller
+                      key={inputName}
+                      control={control}
+                      name={`purchases.${index}.${inputName}`}
+                      render={({ field, fieldState }) => (
+                        <FormField
+                          title={inputName.charAt(0).toUpperCase() + inputName.slice(1)}
+                          onChangeText={field.onChange}
+                          value={field.value}
+                          errorMessage={fieldState.error?.message}
+                        />
+                      )}
+                    />
+                  ))}
+                  <TouchableOpacity
+                    className="bg-red-500 rounded-md p-2 mt-2"
+                    onPress={() => removeProduct(index)}
+                  >
+                    <Text className="text-white text-center">Usuń produkt</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+
+              <TouchableOpacity
+                className="bg-green-500 rounded-md p-3 mb-4"
+                onPress={() => appendProduct({ name: '', price: '', quantity: '', discount: '' })}
+              >
+                <Text className="text-white text-center">Dodaj produkt</Text>
+              </TouchableOpacity>
+            </>
+          )}
           <Text className='text-red-500'>{isAuthError}</Text>
           <CustomButton
             title="Dodaj transakcje"
