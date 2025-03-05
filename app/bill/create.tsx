@@ -27,9 +27,11 @@ interface IFormInput {
 }
 
 const Create = () => {
+  const [showPurchases, setShowPurchases] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthError, setAuthError] = useState('');
   const addTransaction = useTransactionStore(store => store.addTransaction);
+  const [isExpenditure, setIsExpenditure] = useState(true);
   const values = useAuthStore(store => store.values);
   const accounts = useAccountStore(store => store.accounts) || [];
 
@@ -38,7 +40,15 @@ const Create = () => {
     defaultValues: {
       is_expenditure: false,
       account_id: accounts[0]?.id,
+      purchases: [], // Dla produktów w zakupach
+      billDetails: {}, // Dla szczegółów zakupów
     }
+  });
+
+  // Dynamiczne pola dla zakupów (produkty)
+  const { fields: productFields, append: appendProduct, remove: removeProduct } = useFieldArray({
+    control,
+    name: 'purchases',
   });
 
   const onSubmit = async (transactionForm: TransactionForm) => {
@@ -61,14 +71,23 @@ const Create = () => {
     }
   };
 
-  // Uaktualnienie domyślnego konta gdy konta zostaną załadowane
-  const selectedAccountId = watch('account_id');
+  // const toggleAccountSelection = (accountId) => {
+  //   const selectedAccounts = getValues('selectedAccounts');
+  //   const newSelection = { ...selectedAccounts, [accountId]: !selectedAccounts[accountId] };
+  //   // Ensure at least one account is always selected
+  //   if (Object.values(newSelection).some(val => val)) {
+  //     setValue('selectedAccounts', newSelection);
+  //   }
+  // };
 
-  useEffect(() => {
-    if (accounts.length > 0 && !selectedAccountId) {
-      setValue('account_id', accounts[0].id);
-    }
-  }, [accounts, setValue, selectedAccountId]);
+   // Uaktualnienie domyślnego konta gdy konta zostaną załadowane
+   const selectedAccountId = watch('account_id');
+
+   useEffect(() => {
+     if (accounts.length > 0 && !selectedAccountId) {
+       setValue('account_id', accounts[0].id);
+     }
+   }, [accounts, setValue, selectedAccountId]);
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -114,6 +133,33 @@ const Create = () => {
               />
             )}
           />
+          {/* <Controller
+            control={control}
+            name='account_id'
+            render={({field, fieldState}) => (
+              <FormField 
+                title="account_id"
+                onChangeText={field.onChange}
+                value={field.value}
+                otherStyles="mt-7"
+                errorMessage={fieldState.error?.message}
+                placeholder=''
+              />
+            )}
+          /> */}
+          {/* <Controller
+            control={control}
+            name='is_expenditure'
+            render={({ field, fieldState }) => (
+              <SwitchField
+                label="Wydatek"
+                value={field.value}
+                onValueChange={field.onChange}
+                errorMessage={fieldState.error?.message}
+                otherStyles="mt-7"
+              />
+            )}
+          /> */}
           <View className="flex-row mb-4">
             <Controller
                 control={control}
@@ -145,6 +191,71 @@ const Create = () => {
               </TouchableOpacity>
             ))}
           </View>
+          {/* Przycisk do pokazania sekcji zakupów */}
+          <TouchableOpacity
+            className="bg-blue-500 rounded-md p-3 mb-4"
+            onPress={() => setShowPurchases(!showPurchases)}
+          >
+            <Text className="text-white text-center">
+              {showPurchases ? 'Ukryj Zakupy' : 'Pokaż Zakupy'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Sekcja szczegółów zakupów */}
+          {showPurchases && (
+            <>
+              {['name_bill', 'shop', 'city', 'date_bill', 'amount_bill'].map((inputName) => (
+                <Controller
+                  key={inputName}
+                  control={control}
+                  name={`billDetails.${inputName}`}
+                  render={({ field, fieldState }) => (
+                    <FormField
+                      title={inputName.replace('_', ' ')}
+                      onChangeText={field.onChange}
+                      value={field.value}
+                      errorMessage={fieldState.error?.message}
+                    />
+                  )}
+                />
+              ))}
+
+              {/* Produkty w zakupach */}
+              {productFields.map((field, index) => (
+                <View key={field.id} className="border-b border-gray-600 mb-4 pb-4">
+                  <Text className="text-white font-semibold mb-2">Produkt #{index + 1}</Text>
+                  {['name', 'price', 'quantity', 'discount'].map((inputName) => (
+                    <Controller
+                      key={inputName}
+                      control={control}
+                      name={`purchases.${index}.${inputName}`}
+                      render={({ field, fieldState }) => (
+                        <FormField
+                          title={inputName.charAt(0).toUpperCase() + inputName.slice(1)}
+                          onChangeText={field.onChange}
+                          value={field.value}
+                          errorMessage={fieldState.error?.message}
+                        />
+                      )}
+                    />
+                  ))}
+                  <TouchableOpacity
+                    className="bg-red-500 rounded-md p-2 mt-2"
+                    onPress={() => removeProduct(index)}
+                  >
+                    <Text className="text-white text-center">Usuń produkt</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+
+              <TouchableOpacity
+                className="bg-green-500 rounded-md p-3 mb-4"
+                onPress={() => appendProduct({ name: '', price: '', quantity: '', discount: '' })}
+              >
+                <Text className="text-white text-center">Dodaj produkt</Text>
+              </TouchableOpacity>
+            </>
+          )}
           <Text className='text-red-500'>{isAuthError}</Text>
           <CustomButton
             title="Dodaj transakcje"

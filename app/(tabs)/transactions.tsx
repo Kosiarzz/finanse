@@ -7,6 +7,7 @@ import TransactionCard from '@/components/TransactionCard';
 import useTransactionStore from '@/store/useTransactionStore';
 import useAuthStore from '@/store/authStore';
 import SearchInput from "@/components/SearchInput";
+import FloatingButton from '@/components/FloatingButton';
 
 const Transactions = () => {
   const [refreshing, setRefreshing] = useState(false)
@@ -62,7 +63,7 @@ const Transactions = () => {
           amount={item.amount}
           is_expenditure={item.is_expenditure}
           account_id={item.account_id}
-          user_id={item.user_id}
+          created_by={item.created_by}
           created_at={item.created_at}
           updated_at={item.updated_at}
          />
@@ -85,6 +86,7 @@ const Transactions = () => {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
       )}
+      <FloatingButton />
     </SafeAreaView>
   )
 }

@@ -7,6 +7,7 @@ import useAuthStore from '@/store/authStore';
 import { getAccounts } from '@/api/account/account';
 import useAccountStore from '@/store/useAccountStore';
 import EmptyState from '@/components/EmptyState';
+import FloatingButton from '@/components/FloatingButton';
 
 const Home = () => {
 
@@ -83,6 +84,8 @@ const Home = () => {
       <Text className='text-white'>Wykres konta</Text>
       <Text className='text-white'>Zbilżające się płatności</Text>
       <Text className='text-white'>Przypomnienia</Text>
+      <FloatingButton />
+
     </SafeAreaView>
   )
 }
