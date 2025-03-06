@@ -8,12 +8,14 @@ import { getAccounts } from '@/api/account/account';
 import useAccountStore from '@/store/useAccountStore';
 import EmptyState from '@/components/EmptyState';
 import FloatingButton from '@/components/FloatingButton';
+import CustomButton from '@/components/CustomButton';
 
 const Home = () => {
 
   const { values, setIsLoggedIn } = useAuthStore();
   const { accounts, setAccounts } = useAccountStore();
   const [refreshing, setRefreshing] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   console.log("HOME")
 
@@ -49,6 +51,44 @@ const Home = () => {
     setRefreshing(false);
   }
 
+  const onAccount = async () => {
+    try {
+      setIsLoading(true)
+      
+      router.push("/account/create");
+    } catch (error) {
+      console.error('Transaction failed', error.response);
+      console.log(error.response.data)
+
+    } finally {
+      setIsLoading(false)
+    }
+  };
+
+  const onEdit = async (id, name, saldo) => {
+      try {
+        console.log(name, saldo)
+        setIsLoading(true)
+        console.log("EDIT")
+        const dataToSend = {
+          id,
+          name,
+          saldo
+        };
+    
+        router.push({
+          pathname: '/account/edit',
+          params: dataToSend,
+        });
+  
+      } catch (error) {
+        console.error('Transaction edit failed', error);
+        setAuthError("Ups, coś nie tak")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <Text className='text-white'>Home</Text>
@@ -58,16 +98,22 @@ const Home = () => {
         keyExtractor={(item) => item.$id}
         renderItem={({ item }) => (
           <>
-            <Text className='text-white'>{item.id}</Text>
-            <Text className='text-white'>{item.name}</Text>
-            <Text className='text-white'>{item.saldo} zł</Text>
+            <TouchableOpacity
+              className="flex flex-col items-center px-4 mb-5" 
+              key={item.id}
+              onPress={() => onEdit(item.id, item.name, item.saldo)} // Wywołanie funkcji onEdit z id
+            >
+              <Text className='text-white'>{item.id}</Text>
+              <Text className='text-white'>{item.name}</Text>
+              <Text className='text-white'>{item.saldo} zł</Text>
+            </TouchableOpacity>
           </>
         )}
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-6">
             <View className="justify-between items-start flex-row mb-6">
               <Text className='tesxt-2xl font-psemibold text-white'>
-                Transakcje
+                Konta
               </Text>
             </View>
           </View>
@@ -79,6 +125,13 @@ const Home = () => {
           />
         )}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      />
+      <CustomButton
+        title="Dodaj konto"
+        handlePress={onAccount}
+        containerStyles="mt-7"
+        isLoading={isLoading}
+        textStyles={''}
       />
       <Text className='text-white'>Ostatnie transakcje</Text>
       <Text className='text-white'>Wykres konta</Text>
