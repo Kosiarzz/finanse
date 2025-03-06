@@ -32,8 +32,8 @@ const FloatingButton = () => {
             />
             <FAB
               style={styles.actionButton}
-              icon="account"
-              onPress={() => router.push('/profile')}
+              icon="bookmark"
+              onPress={() => router.push('/bill/create')}
             />
             <FAB
               style={styles.actionButton}

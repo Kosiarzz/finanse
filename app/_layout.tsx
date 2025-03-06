@@ -49,6 +49,14 @@ export default function RootLayout() {
         },
         headerTintColor: '#fff', 
       }}/>
+      <Stack.Screen name="bill/create" options={{ 
+        headerShown: true,
+        title: '',
+        headerStyle: {
+          backgroundColor: '#161622',
+        },
+        headerTintColor: '#fff', 
+      }}/>
     </Stack>
   )
 }

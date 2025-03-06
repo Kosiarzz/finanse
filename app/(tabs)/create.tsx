@@ -94,7 +94,7 @@ const Create = () => {
             name='amount'
             render={({field, fieldState}) => (
               <FormField 
-                title="Wartość"
+                title="Kwota"
                 onChangeText={field.onChange}
                 value={field.value}
                 otherStyles="mt-7"

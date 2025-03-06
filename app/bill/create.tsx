@@ -12,7 +12,7 @@ import SwitchField from '@/components/SwitchField';
 import useAuthStore from '@/store/authStore';
 import { registerUser } from '@/api/auth/auth';
 import * as SecureStore from 'expo-secure-store';
-import { TransactionForm, transactionFormSchema } from '@/api/validation/transactionValidation';
+import { transactionBillForm, transactionBillFormSchema, TransactionForm, transactionFormSchema } from '@/api/validation/transactionValidation';
 import { postTransaction } from '@/api/transaction/transaction';
 import useTransactionStore from '@/store/useTransactionStore';
 import useAccountStore from '@/store/useAccountStore';
@@ -27,7 +27,7 @@ interface IFormInput {
 }
 
 const Create = () => {
-  const [showPurchases, setShowPurchases] = useState(false);
+  const [showPurchases, setShowPurchases] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthError, setAuthError] = useState('');
   const addTransaction = useTransactionStore(store => store.addTransaction);
@@ -36,12 +36,11 @@ const Create = () => {
   const accounts = useAccountStore(store => store.accounts) || [];
 
   const { handleSubmit, formState: { errors }, control, setValue, getValues, watch } = useForm({
-    resolver: yupResolver(transactionFormSchema),
+    resolver: yupResolver(transactionBillFormSchema),
     defaultValues: {
-      is_expenditure: false,
       account_id: accounts[0]?.id,
-      purchases: [], // Dla produktów w zakupach
-      billDetails: {}, // Dla szczegółów zakupów
+      purchases: [], // Dla produktów
+      amount: 0,
     }
   });
 
@@ -51,17 +50,17 @@ const Create = () => {
     name: 'purchases',
   });
 
-  const onSubmit = async (transactionForm: TransactionForm) => {
+  const onSubmit = async (transactionForm: transactionBillForm) => {
     try {
       setIsLoading(true)
       
       console.log(transactionForm)
-      const response = await postTransaction(transactionForm, values.accessToken);
-      console.log(response)
-      addTransaction(response)
-      //update danych usera db lokalnie 
-      setAuthError('')
-      router.push("/transactions");
+      // const response = await postTransaction(transactionForm, values.accessToken);
+      // console.log(response)
+      // addTransaction(response)
+      // //update danych usera db lokalnie 
+      // setAuthError('')
+      // router.push("/transactions");
     } catch (error) {
       console.error('Transaction failed', error.response);
       console.log(error.response.data)
@@ -71,29 +70,27 @@ const Create = () => {
     }
   };
 
-  // const toggleAccountSelection = (accountId) => {
-  //   const selectedAccounts = getValues('selectedAccounts');
-  //   const newSelection = { ...selectedAccounts, [accountId]: !selectedAccounts[accountId] };
-  //   // Ensure at least one account is always selected
-  //   if (Object.values(newSelection).some(val => val)) {
-  //     setValue('selectedAccounts', newSelection);
-  //   }
-  // };
+  const sumPrices = () => {
+    const purchases = getValues('purchases');
+    const total = purchases.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
+    console.log(total)
+    setValue('amount', total.toString());
+  };
+  //{"account_id": 2, "amount": 30, "city": "Rzeszow", "name": "zakupy biedra", "photo": "xxx", "purchases": [{"category": "fajne", "discount": "-3", "name": "frytki", "price": "14", "quantity": "2", "unit": "szt"}, {"category": "", "discount": "", "name": "kurczak", "price": "16", "quantity": "1", "unit": "szt"}], "shop": "biedra"}
+  // Uaktualnienie domyślnego konta gdy konta zostaną załadowane
+  const selectedAccountId = watch('account_id');
 
-   // Uaktualnienie domyślnego konta gdy konta zostaną załadowane
-   const selectedAccountId = watch('account_id');
-
-   useEffect(() => {
-     if (accounts.length > 0 && !selectedAccountId) {
-       setValue('account_id', accounts[0].id);
-     }
-   }, [accounts, setValue, selectedAccountId]);
+  useEffect(() => {
+    if (accounts.length > 0 && !selectedAccountId) {
+      setValue('account_id', accounts[0].id);
+    }
+  }, [accounts, setValue, selectedAccountId]);
 
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
         <View className="w-full justify-center min-h-[83vh] px-4">
-          <Text className="text-2xl text-white text-semibold font-psemibold">Nowa transakcja</Text>
+          <Text className="text-2xl text-white text-semibold font-psemibold">Zakupy</Text>
           <Controller
             control={control}
             name='name'
@@ -113,7 +110,55 @@ const Create = () => {
             name='amount'
             render={({field, fieldState}) => (
               <FormField 
-                title="Wartość"
+                title="Kwota"
+                onChangeText={field.onChange}
+                value={field.value}
+                otherStyles="mt-7"
+                errorMessage={fieldState.error?.message}
+                placeholder=''
+              />
+            )}
+          />
+          <TouchableOpacity
+                className="bg-blue-600 rounded-md p-3 mb-4"
+                onPress={sumPrices}
+              >
+                <Text className="text-white text-center">Suma cen produktow</Text>
+              </TouchableOpacity>
+          <Controller
+            control={control}
+            name='shop'
+            render={({field, fieldState}) => (
+              <FormField 
+                title="Sklep"
+                onChangeText={field.onChange}
+                value={field.value}
+                otherStyles="mt-7"
+                errorMessage={fieldState.error?.message}
+                placeholder=''
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name='city'
+            render={({field, fieldState}) => (
+              <FormField 
+                title="Miasto"
+                onChangeText={field.onChange}
+                value={field.value}
+                otherStyles="mt-7"
+                errorMessage={fieldState.error?.message}
+                placeholder=''
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name='photo'
+            render={({field, fieldState}) => (
+              <FormField 
+                title="Paragon"
                 onChangeText={field.onChange}
                 value={field.value}
                 otherStyles="mt-7"
@@ -133,53 +178,6 @@ const Create = () => {
               />
             )}
           />
-          {/* <Controller
-            control={control}
-            name='account_id'
-            render={({field, fieldState}) => (
-              <FormField 
-                title="account_id"
-                onChangeText={field.onChange}
-                value={field.value}
-                otherStyles="mt-7"
-                errorMessage={fieldState.error?.message}
-                placeholder=''
-              />
-            )}
-          /> */}
-          {/* <Controller
-            control={control}
-            name='is_expenditure'
-            render={({ field, fieldState }) => (
-              <SwitchField
-                label="Wydatek"
-                value={field.value}
-                onValueChange={field.onChange}
-                errorMessage={fieldState.error?.message}
-                otherStyles="mt-7"
-              />
-            )}
-          /> */}
-          <View className="flex-row mb-4">
-            <Controller
-                control={control}
-                name="is_expenditure"
-                render={({ field: { value, onChange } }) => (
-                  <>
-                      <TouchableOpacity
-                          className={`px-6 py-3 rounded-md mr-2 ${value ? 'bg-gray-300' : 'bg-secondary'}`}
-                          onPress={() => onChange(false)}>
-                          <Text className={`text-lg ${value ? 'text-gray-800' : 'text-white'}`}>Dochód</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                          className={`px-6 py-3 rounded-md ${!value ? 'bg-gray-300' : 'bg-secondary'}`}
-                          onPress={() => onChange(true)}>
-                          <Text className={`text-lg ${!value ? 'text-gray-800' : 'text-white'}`}>Wydatek</Text>
-                      </TouchableOpacity>
-                  </>
-                )}
-            />
-          </View>
           <View className="flex-row flex-wrap mb-4">
             {accounts.map((account) => (
               <TouchableOpacity
@@ -204,27 +202,12 @@ const Create = () => {
           {/* Sekcja szczegółów zakupów */}
           {showPurchases && (
             <>
-              {['name_bill', 'shop', 'city', 'date_bill', 'amount_bill'].map((inputName) => (
-                <Controller
-                  key={inputName}
-                  control={control}
-                  name={`billDetails.${inputName}`}
-                  render={({ field, fieldState }) => (
-                    <FormField
-                      title={inputName.replace('_', ' ')}
-                      onChangeText={field.onChange}
-                      value={field.value}
-                      errorMessage={fieldState.error?.message}
-                    />
-                  )}
-                />
-              ))}
-
               {/* Produkty w zakupach */}
               {productFields.map((field, index) => (
                 <View key={field.id} className="border-b border-gray-600 mb-4 pb-4">
                   <Text className="text-white font-semibold mb-2">Produkt #{index + 1}</Text>
-                  {['name', 'price', 'quantity', 'discount'].map((inputName) => (
+
+                  {['name', 'price', 'quantity', 'discount', 'unit', 'category'].map((inputName) => (
                     <Controller
                       key={inputName}
                       control={control}
@@ -234,7 +217,7 @@ const Create = () => {
                           title={inputName.charAt(0).toUpperCase() + inputName.slice(1)}
                           onChangeText={field.onChange}
                           value={field.value}
-                          errorMessage={fieldState.error?.message}
+                          errorMessage={fieldState.error?.message} // Pokazanie błędów walidacji
                         />
                       )}
                     />
@@ -250,7 +233,7 @@ const Create = () => {
 
               <TouchableOpacity
                 className="bg-green-500 rounded-md p-3 mb-4"
-                onPress={() => appendProduct({ name: '', price: '', quantity: '', discount: '' })}
+                onPress={() => appendProduct({ name: '', price: '', quantity: '', discount: '', unit: '', category: ''})}
               >
                 <Text className="text-white text-center">Dodaj produkt</Text>
               </TouchableOpacity>
