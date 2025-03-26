@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { API_URL } from '@env';
 
-console.log("API:"+API_URL)
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+console.log("API: "+API_URL)
 export default axios.create({
   baseURL: `${API_URL}/api/v1`,
 });
